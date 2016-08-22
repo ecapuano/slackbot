@@ -25,7 +25,7 @@ import subprocess
 debug = "no" # set to 'yes' to print messages to console
 
 working_dir = "/opt/blockip"
-logging.basicConfig(filename='/opt/blockip/blacklist.log',format='%(asctime)s %(message)s',level=logging.DEBUG)
+logging.basicConfig(filename='/opt/blockip/blacklist.log',format='%(asctime)s %(message)s',level=logging.INFO)
 logging.info('Application started. Listening on port: %s',config.listen_port)
 
 BLfile = "%s/ipv4bl.txt" % working_dir
