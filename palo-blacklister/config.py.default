@@ -1,0 +1,38 @@
+################################################################################
+#
+# A config file for a poorly written Slack integration that enables adding 
+# IP addresses to a Palo Alto dynamic blacklist. 
+# 
+# https://github.com/ecapuano/slackbot
+#
+################################################################################
+
+# your slash command API token
+slack_token = ''
+
+# commands to this bot will only be accepted from this channel_id, should resemble this format: G1781BECV
+authorized_channel = '' 
+
+# IP address to listen for Slack's webhooks, leave at 0.0.0.0 for all interfaces
+listen_ip = '0.0.0.0'
+
+# port to listen on for Slack's webhooks, make sure this doesn't conflict with another listener
+listen_port = 8001 
+
+# a general channel to return the results to in addition to the user, requires separate webhook integration
+response_channel = ''
+
+# self explanatory FTW
+bot_name = 'IP Blocker'
+
+# the internally accessible link to your dynamic blacklist, mainly just used in messages back to users for validation purposes, ex: http://192.168.1.150/ipv4bl.txt
+ipbl_location = '' 
+
+# SCP path, including host, to the remote location of the IPv4 blacklist, example slackbot@remoteserver.com:/var/www/blocklists/ipv4bl.txt
+remote_location = '' 
+
+# local path to the SSH key to use to authenticate to remote_location -- you'll need to generate this key ahead of time and copy to remote_location ~/.ssh/authorized_hosts file
+ssh_key = '/home/slackbot/.ssh/id_rsa' 
+
+# any IP in this dictionary cannot be blacklisted by this bot. Replace 111.111.111.111 with whatever your environment uses as a DNS blackhole
+whitelist = ["111.111.111.111", "8.8.8.8", "8.8.4.4", "0.0.0.0", "255.255.255.255"] 
