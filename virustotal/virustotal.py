@@ -24,7 +24,7 @@ import logging
 
 debug = "no" # set to 'yes' to print messages to console
 
-logging.basicConfig(filename='virustotal.log',format='%(asctime)s %(message)s',level=logging.DEBUG)
+logging.basicConfig(filename='virustotal.log',format='%(asctime)s %(message)s',level=logging.INFO)
 logging.info('Server started.')
 
 app = application = bottle.Bottle()
