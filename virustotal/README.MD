@@ -14,7 +14,7 @@ As of now, it only supports passing a URL or a file hash like so;
 or 
 `/virustotal 99017f6eebbac24f351415dd410d522d`
 
-Results are returned in the following format:
+Results for a hash query are returned in the following format:
 ```
 Scan Results for:     <slack username>
 MD5:     99017f6eebbac24f351415dd410d522d
@@ -35,5 +35,17 @@ Symantec:     Trojan.KillAV
 Scanned on:     2016-08-21 20:09:47
 https://www.virustotal.com/file/52d3df0ed60c46f336c131bf2ca454f73bafdc4b04dfa2aea80746f5ba9e6d1c/analysis/1471810187/
 ```
+URL query response:
+```
+Results for Site:     http://malware.ru/
+Determined Malicious by:     1/65
+PhishLabs:     unrated site
+Sophos:     unrated site
+Kaspersky:     phishing site
+Sophos:     unrated site
+Scanned on:     2015-10-25 07:48:27
+https://www.virustotal.com/url/a1e96fb159e1eb82c4cbb8ca342a2652ce97c16f8b214d792f9ca7262224240c/analysis/1445759307/
+```
+
 
 You can mess with the hardcoded parser in order to show the vendors that you prefer, but either way you still get a "total count" ie. `Detected Malicious by:     51/56`
