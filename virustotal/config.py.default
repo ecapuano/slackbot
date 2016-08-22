@@ -1,0 +1,30 @@
+
+################################################################################
+#
+# A config file for a poorly written Slack integration that enables  
+# querying Virustotal from Slack
+# 
+# https://github.com/ecapuano/slackbot
+#
+################################################################################
+
+# your slash command API token
+slack_token = ''
+
+# a general channel to return the results to in addition to the user, requires separate webhook integration
+slack_url = ''
+
+# virus total API token
+vt_api = ''
+
+# self explanatory FTW
+botname = 'VirusTotal'
+
+# ip address to listen on, leave set to 0.0.0.0 for all interfaces
+listen_ip = '0.0.0.0'
+
+# make sure this doesn't conflict with another listener
+listen_port = 8080 
+
+# number of minutes between scans allowed, not used yet
+cooldown_min = 2 
