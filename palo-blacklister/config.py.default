@@ -19,8 +19,8 @@ listen_ip = '0.0.0.0'
 # port to listen on for Slack's webhooks, make sure this doesn't conflict with another listener
 listen_port = 8001 
 
-# a general channel to return the results to in addition to the user, requires separate webhook integration
-response_channel = ''
+# The webhook URL for a general channel to return the results to in addition to the user, requires separate webhook integration
+response_channel = '' # should be a webhook URL
 
 # self explanatory FTW
 bot_name = 'IP Blocker'
