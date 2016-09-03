@@ -17,6 +17,14 @@ Be sure to rename config.py.default to config.py and modify the settings for you
 
 You may need to use requestbin to run some tests to find out what your Slack channel ID is. Or just enable debug on blockip.py and watch the console / log file.
 
+Last but not least, be sure to add a crontab to start at boot...
+
+`sudo crontab -e`
+
+Add the following line:
+
+`@reboot /opt/slackbot/palo-blacklister/blockip.py`
+
 ## To-Dos
 - Pep8 compliance
 - General code cleanup
