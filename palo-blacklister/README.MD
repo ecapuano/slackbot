@@ -23,7 +23,7 @@ Last but not least, be sure to add a crontab to start at boot...
 
 Add the following line:
 
-`@reboot /opt/slackbot/palo-blacklister/blockip.py`
+`@reboot python /opt/slackbot/palo-blacklister/blockip.py`
 
 ## To-Dos
 - Pep8 compliance
