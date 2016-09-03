@@ -24,14 +24,15 @@ import subprocess
 
 debug = "no" # set to 'yes' to print messages to console
 
-working_dir = "/opt/blockip"
-logging.basicConfig(filename='blacklist.log',format='%(asctime)s %(message)s',level=logging.INFO)
-logging.info('Application started. Listening on port: %s',config.listen_port)
+working_dir = "/opt/slackbot/palo-blacklister"
 
+logfile = "%s/blacklist.log" % working_dir
 BLfile = "%s/ipv4bl.txt" % working_dir
 
-app = application = bottle.Bottle()
+logging.basicConfig(filename=logfile,format='%(asctime)s %(message)s',level=logging.INFO)
+logging.info('Application started. Listening on port: %s',config.listen_port)
 
+app = application = bottle.Bottle()
 
 @app.route('/', method='POST')
 def slack_post():
