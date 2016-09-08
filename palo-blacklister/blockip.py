@@ -21,11 +21,11 @@ import logging
 import os
 import time
 import subprocess
+import pycurl
 
 debug = "no" # set to 'yes' to print messages to console
 
 working_dir = "/opt/slackbot/palo-blacklister"
-
 logfile = "%s/blacklist.log" % working_dir
 BLfile = "%s/ipv4bl.txt" % working_dir
 
@@ -121,6 +121,11 @@ def parseArguments(args,response_url,user_name,timestamp,channel_name):
 
 def notDuplicate(ip):
 	logging.debug('Running notDuplicate against: %s',ip)
+	c = pycurl.Curl()
+	c.setopt(c.URL, config.ipbl_location) # grab the latest version of DBL before adding to it
+	with open(BLfile, 'w') as f:
+		c.setopt(c.WRITEFUNCTION, f.write)
+		c.perform()
 	if ip in open(BLfile).read(): # check to see if IP already exists in the blacklist
 		return False
 	else:
