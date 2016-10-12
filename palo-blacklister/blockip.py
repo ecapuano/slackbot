@@ -2,11 +2,11 @@
 
 ################################################################################
 #
-# A poorly written Slack integration that enables adding
+# A poorly written Slack integration that enables adding 
 # IP addresses to a Palo Alto dynamic blacklist located on a remote server.
 #
 # Curently built to run from /opt/blockip/
-#
+# 
 # https://github.com/ecapuano/slackbot
 #
 ################################################################################
@@ -120,7 +120,7 @@ def parseArguments(args,response_url,user_name,timestamp,channel_name):
 def notDuplicate(ip):
 	logging.debug('Running notDuplicate against: %s',ip)
 	c = pycurl.Curl()
-	c.setopt(c.URL, 'http://10.193.160.242:8080/ipv4bl.txt') # make sure we are modifying the latest version of DBL
+	c.setopt(c.URL, config.ipbl_location) # make sure we are modifying the latest version of DBL
 	with open(BLfile, 'w') as f:
 		c.setopt(c.WRITEFUNCTION, f.write)
 		c.perform()
@@ -158,9 +158,9 @@ def blacklistAdder(ip,message,response_url,user_name,timestamp,notes):
 def blacklistRemover(ip,message,response_url,user_name,timestamp,notes):
 	logging.debug('Running blacklistRemover with args: %s %s %s %s %s %s',ip,message,response_url,user_name,timestamp,notes)
 	if notDuplicate(ip):
-		return "IP not in blacklist! Nothing done..."
-		logging.info('Attempt to remove blacklist entry failed, does not exist.',ip)
+		logging.info('Attempt to remove blacklist entry failed, does not exist: %s',ip)
 		status = "fail"
+		message = "%s not in blacklist! Nothing done..." % ip
 	else:
 		f = open(BLfile,"r")
 		lines = f.readlines()
@@ -177,7 +177,7 @@ def blacklistRemover(ip,message,response_url,user_name,timestamp,notes):
 		syncBlacklist()
 		status = "pass"
 		message = "IP address: %s, removed from blacklist by %s. Reason: %s" % (ip,user_name,notes)
-		sendToSlack(status,message,response_url)
+	sendToSlack(status,message,response_url)
 
 
 def isValidIPv4(ip):
@@ -221,7 +221,7 @@ def addIPtoBL(ip,blocked_url,response_url,user_name,notes):
 			with open(BLfile, "a") as workingBLfile:
 				workingBLfile.write(blacklist_entry + "\n")
 			logging.info('Blacklist entry added to local working list.')
-
+			
 			last_entry = subprocess.check_output(['tail', '-1', BLfile])
 			logging.debug('Cat last line of local working list:%s',last_entry)
 			syncBlacklist()
