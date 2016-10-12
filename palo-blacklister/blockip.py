@@ -2,16 +2,16 @@
 
 ################################################################################
 #
-# A poorly written Slack integration that enables adding 
+# A poorly written Slack integration that enables adding
 # IP addresses to a Palo Alto dynamic blacklist located on a remote server.
 #
 # Curently built to run from /opt/blockip/
-# 
+#
 # https://github.com/ecapuano/slackbot
 #
 ################################################################################
 
-import bottle 
+import bottle
 import re
 import requests
 import json
@@ -95,7 +95,7 @@ def parseArguments(args,response_url,user_name,timestamp,channel_name):
 		notes = argList[2:]
 		notes = " ".join(notes)
 		message = ""
-
+		timestamp = (time.strftime("%m/%d/%Y %H:%M:%S"))
 		logging.debug('Arugments extracted - function: %s ip:%s notes:%s',func,ip,notes)
 
 		if func == "block":
@@ -103,9 +103,7 @@ def parseArguments(args,response_url,user_name,timestamp,channel_name):
 			blacklistAdder(ip,message,response_url,user_name,timestamp,notes)
 		elif func == "unblock":
 			logging.info('UN-block function requested. Routing')
-			message = "This feature not yet implemented"
-			status = "fail"
-			sendToSlack(status,message,response_url)
+			blacklistRemover(ip,message,response_url,user_name,timestamp,notes)
 		elif func == "check":
 			logging.info('Check function requested. Routing')
 			message = "This feature not yet implemented"
@@ -122,7 +120,7 @@ def parseArguments(args,response_url,user_name,timestamp,channel_name):
 def notDuplicate(ip):
 	logging.debug('Running notDuplicate against: %s',ip)
 	c = pycurl.Curl()
-	c.setopt(c.URL, config.ipbl_location) # grab the latest version of DBL before adding to it
+	c.setopt(c.URL, 'http://10.193.160.242:8080/ipv4bl.txt') # make sure we are modifying the latest version of DBL
 	with open(BLfile, 'w') as f:
 		c.setopt(c.WRITEFUNCTION, f.write)
 		c.perform()
@@ -156,6 +154,30 @@ def blacklistAdder(ip,message,response_url,user_name,timestamp,notes):
 		status = "fail"
 		sendToSlack(status,message,response_url)
 
+
+def blacklistRemover(ip,message,response_url,user_name,timestamp,notes):
+	logging.debug('Running blacklistRemover with args: %s %s %s %s %s %s',ip,message,response_url,user_name,timestamp,notes)
+	if notDuplicate(ip):
+		return "IP not in blacklist! Nothing done..."
+		logging.info('Attempt to remove blacklist entry failed, does not exist.',ip)
+		status = "fail"
+	else:
+		f = open(BLfile,"r")
+		lines = f.readlines()
+		f.close()
+		f = open(BLfile,"w")
+		for line in lines:
+		  if ip in line:
+		  	newline = "# REMOVED by " + user_name + " on " + timestamp + ", reason: " + notes + " # " + line
+			f.write(newline)
+			logging.info('Blacklist entry removed: %s',ip)
+		  else:
+		    f.write(line)
+		f.close()
+		syncBlacklist()
+		status = "pass"
+		message = "IP address: %s, removed from blacklist by %s. Reason: %s" % (ip,user_name,notes)
+		sendToSlack(status,message,response_url)
 
 
 def isValidIPv4(ip):
@@ -192,7 +214,6 @@ def addIPtoBL(ip,blocked_url,response_url,user_name,notes):
 	if notDuplicate(ip):
 		if notWhitelisted(ip):
 			logging.info('Dupe check complete. No duplicates for: %s',ip)
-			timestamp = (time.strftime("%m/%d/%Y %H:%M:%S"))
 			blacklist_entry = "%s # from url:%s -- added via Slack by %s on %s -- notes: %s" % (ip,blocked_url,user_name,timestamp,notes)
 			logging.info('Blacklist entry generated: %s',blacklist_entry)
 			message = "IP:%s (URL:%s) has been added to the PA-7050 Dynamic Blacklist by %s. Reason: %s" % (ip,blocked_url,user_name,notes)
@@ -200,12 +221,11 @@ def addIPtoBL(ip,blocked_url,response_url,user_name,notes):
 			with open(BLfile, "a") as workingBLfile:
 				workingBLfile.write(blacklist_entry + "\n")
 			logging.info('Blacklist entry added to local working list.')
-			
+
 			last_entry = subprocess.check_output(['tail', '-1', BLfile])
 			logging.debug('Cat last line of local working list:%s',last_entry)
+			syncBlacklist()
 
-			os.system("scp -i %s %s %s" % (config.ssh_key,BLfile,config.remote_location))
-			logging.info('Local blacklist has been SCP\'d to production blacklist')
 			status = "pass"
 		else:
 			message = "`NOTICE!` IP:%s (URL:%s) is on the whitelist and cannot be blocked!" % (ip,blocked_url)
@@ -218,6 +238,9 @@ def addIPtoBL(ip,blocked_url,response_url,user_name,notes):
 		logging.warning('Duplicate entry Detected, not adding: %s',ip)
 	sendToSlack(status,message,response_url)
 
+def syncBlacklist():
+	os.system("scp -i %s %s %s" % (config.ssh_key,BLfile,config.remote_location))
+	logging.info('Local blacklist has been SCP\'d to production blacklist')
 
 def sendToSlack(status,message,response_url):
 	logging.debug('Beginning sendToSlack with args: %s %s %s',status,message,response_url)
